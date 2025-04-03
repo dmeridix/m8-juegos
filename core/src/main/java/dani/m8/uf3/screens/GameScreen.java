@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -32,6 +33,8 @@ public class GameScreen implements Screen {
     private float explosionTime = 0;
     private boolean gameOver = false;
 
+    private GlyphLayout textLayout;
+
     public GameScreen() {
         AssetManager.music.play();
         shapeRenderer = new ShapeRenderer();
@@ -44,13 +47,16 @@ public class GameScreen implements Screen {
         stage = new Stage(viewport);
         batch = stage.getBatch();
 
+
         spacecraft = new Spacecraft(Settings.SPACECRAFT_STARTX, Settings.SPACECRAFT_STARTY, Settings.SPACECRAFT_WIDTH, Settings.SPACECRAFT_HEIGHT);
         scrollHandler = new ScrollHandler();
 
+        spacecraft.setName("spacecraft");
         stage.addActor(scrollHandler);
         stage.addActor(spacecraft);
 
         Gdx.input.setInputProcessor(new InputHandler(this));
+        textLayout = new GlyphLayout();
     }
 
     @Override
@@ -73,12 +79,14 @@ public class GameScreen implements Screen {
             batch.draw(AssetManager.explosionAnim.getKeyFrame(explosionTime, false),
                 (spacecraft.getX() + spacecraft.getWidth() / 2 - 32),
                 spacecraft.getY() + spacecraft.getHeight() / 2 - 32, 64, 64);
+            textLayout.setText(AssetManager.font, "Game over");
+            AssetManager.font.draw(batch, textLayout, Settings.GAME_WIDTH/2 - textLayout.width/2, Settings.GAME_HEIGHT/2 - textLayout.height/2);
             batch.end();
 
             explosionTime += delta;
         }
 
-        drawElements();
+        //drawElements();
     }
 
     private void drawElements() {

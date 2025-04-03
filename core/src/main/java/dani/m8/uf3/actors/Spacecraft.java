@@ -5,8 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-
-import org.w3c.dom.css.Rect;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 
 import dani.m8.uf3.helpers.AssetManager;
 import dani.m8.uf3.utils.Settings;
@@ -22,18 +21,29 @@ public class Spacecraft extends Actor {
     private Rectangle collisionRect;
 
     public Spacecraft(float x, float y, int width, int height) {
-        // Inicialitzem els arguments segons la crida del constructor
-
         this.width = width;
         this.height = height;
         position = new Vector2(x, y);
 
-        // Inicialitzem l'spacecraft a l'estat normal
         direction = SPACECRAFT_STRAIGHT;
-
-        // Creem el rectangle de col·lisions
         collisionRect = new Rectangle();
+
+        setBounds(position.x, position.y, width, height);
+        setTouchable(Touchable.enabled);
+
+        // Depuración: Ver si las texturas están cargadas
+        if (AssetManager.spacecraft == null) {
+            System.err.println("ERROR: La textura de la nave (SPACECRAFT) no está cargada.");
+        }
+        if (AssetManager.spacecraftUp == null) {
+            System.err.println("ERROR: La textura de la nave (SPACECRAFT_UP) no está cargada.");
+        }
+        if (AssetManager.spacecraftDown == null) {
+            System.err.println("ERROR: La textura de la nave (SPACECRAFT_DOWN) no está cargada.");
+        }
     }
+
+    @Override
     public void act(float delta) {
         switch (direction) {
             case SPACECRAFT_UP:
@@ -51,8 +61,10 @@ public class Spacecraft extends Actor {
         }
 
         collisionRect.set(position.x, position.y + 3, width, 10);
+        setBounds(position.x, position.y, width, height);
     }
-    public Rectangle getCollisionRect(){
+
+    public Rectangle getCollisionRect() {
         return collisionRect;
     }
 
@@ -68,31 +80,30 @@ public class Spacecraft extends Actor {
                 return AssetManager.spacecraft;
         }
     }
-    public float getX(){
-        return position.x;
-    }
-    public float getY(){
-        return position.y;
-    }
-    public float getWidth(){
-        return width;
-    }
-    public float getHeight(){
-        return height;
-    }
-    public void goUp(){
+
+    public void goUp() {
         direction = SPACECRAFT_UP;
     }
-    public void goDown(){
+
+    public void goDown() {
         direction = SPACECRAFT_DOWN;
     }
-    public void goStraight(){
+
+    public void goStraight() {
         direction = SPACECRAFT_STRAIGHT;
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-        batch.draw(getSpacecraftTexture(), position.x, position.y, width, height);
+
+        TextureRegion texture = getSpacecraftTexture();
+
+        if (texture == null) {
+            System.err.println("ERROR: No se puede dibujar la nave porque la textura es null.");
+            return;
+        }
+
+        batch.draw(texture, position.x, position.y, width, height);
     }
 }
